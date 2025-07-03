@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Locadora Azul</title>
+  <style>
+    :root {
+      --azul: #0044cc;
+      --amarelo-claro: #fff9db;
+      --branco: #ffffff;
+      --cinza-borda: #ccc;
+      --sombra: rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--amarelo-claro);
+    }
+
+    header {
+      background-color: var(--azul);
+      color: var(--branco);
+      padding: 20px;
+      text-align: center;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 999;
+      box-shadow: 0 2px 10px var(--sombra);
+    }
+
+    main {
+      padding: 120px 20px 40px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: var(--branco);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px var(--sombra);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
+      color: var(--azul);
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: 1px solid var(--cinza-borda);
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: var(--azul);
+      color: var(--branco);
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #0033a0;
+    }
+
+    .vehicle-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .vehicle-card {
+      background-color: var(--branco);
+      border-radius: 10px;
+      width: 200px;
+      padding: 10px;
+      box-shadow: 0 2px 8px var(--sombra);
+      text-align: center;
+    }
+
+    .vehicle-card:hover {
+      transform: scale(1.02);
+    }
+
+    .vehicle-card img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    #mensagem {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .voltar-btn {
+      margin-top: 20px;
+      background-color: #999;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Locadora Azul</h1>
+  </header>
+  <main id="login">
+    <div class="container">
+      <h2>Login</h2>
+      <input type="text" id="usuario" placeholder="Usuário">
+      <input type="password" id="senha" placeholder="Senha" onkeydown="if(event.key === 'Enter') fazerLogin()">
+      <button onclick="fazerLogin()">Entrar</button>
+      <p id="mensagem"></p>
+    </div>
+  </main>
+
+  <main id="selecionarVeiculo" style="display: none;">
+    <div class="container">
+      <h2>Escolha seu Veículo</h2>
+      <div class="vehicle-list">
+        <div class="vehicle-card">
+          <img src="sedan.jpeg" alt="Carro Sedan">
+          <p>sedan</p>
+          <p><strong>R$ 150,00 por dia</strong></p>
+          <button onclick="escolherVeiculo('Carro Sedan')">Selecionar</button>
+        </div>
+        <div class="vehicle-card">
+          <img src="volvo-xc90-armored.jpg" alt="SUV">
+        <p>volvo</p>
+          <p><strong>R$ 200,00 por dia</strong></p>
+          <button onclick="escolherVeiculo('SUV')">Selecionar</button>
+        </div>
+        <div class="vehicle-card">
+          <img src="aluguel.jpeg" alt="Utilitário">
+        <p>Utilitário</p>
+          <p><strong>R$ 180,00 por dia</strong></p>
+          <button onclick="escolherVeiculo('Utilitário')">Selecionar</button>
+        </div>
+      </div>
+      <button class="voltar-btn" onclick="logout()">Voltar para Login</button>
+    </div>
+  </main>
+
+  <main id="dadosMotorista" style="display: none;">
+    <div class="container">
+      <h2>Dados do Motorista</h2>
+      <p id="infoVeiculo"></p>
+      <input type="text" id="nome" placeholder="Nome do Motorista">
+      <input type="text" id="cnh" placeholder="Número da CNH" onkeydown="if(event.key === 'Enter') finalizarPedido()">
+      <button onclick="finalizarPedido()">Finalizar Pedido</button>
+      <button class="voltar-btn" onclick="voltarParaVeiculos()">Voltar</button>
+    </div>
+  </main>
+
+  <main id="confirmacao" style="display: none;">
+    <div class="container">
+      <h2>Aluguel Efetuado!</h2>
+      <p>Seu pedido foi registrado com sucesso. Obrigado por usar a Locadora Azul!</p>
+    </div>
+  </main>
+
+  <script>
+    let veiculoSelecionado = '';
+
+    window.onload = () => {
+      if (localStorage.getItem('logado') === 'true') {
+        alternarPaginas('login', 'selecionarVeiculo');
+      }
+    }
+
+    function fazerLogin() {
+      const user = document.getElementById('usuario').value.trim().toLowerCase();
+      const pass = document.getElementById('senha').value;
+      const msg = document.getElementById('mensagem');
+
+      if (user === 'admin' && pass === '123@4') {
+        localStorage.setItem('logado', 'true');
+        alternarPaginas('login', 'selecionarVeiculo');
+      } else {
+        msg.textContent = 'Usuário ou senha incorretos';
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('logado');
+      location.reload();
+    }
+
+    function escolherVeiculo(veiculo) {
+      veiculoSelecionado = veiculo;
+      document.getElementById('infoVeiculo').textContent = `Veículo escolhido: ${veiculo}`;
+      alternarPaginas('selecionarVeiculo', 'dadosMotorista');
+    }
+    function voltarParaVeiculos() {
+      alternarPaginas('dadosMotorista', 'selecionarVeiculo');
+    }
+
+    function finalizarPedido() {
+      const nome = document.getElementById('nome').value.trim();
+      const cnh = document.getElementById('cnh').value.trim();
+
+      if (nome && cnh) {
+        alternarPaginas('dadosMotorista', 'confirmacao');
+      } else {
+        alert('Por favor, preencha todos os dados corretamente.');
+      }
+    }
+    function alternarPaginas(paginaOculta, paginaVisivel) {
+      document.getElementById(paginaOculta).style.display = 'none';
+      document.getElementById(paginaVisivel).style.display = 'block';
+    }
+  </script>
+</body>
+</html>
